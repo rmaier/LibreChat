@@ -11,7 +11,7 @@ MONGO_DATABASE="LibreChat"
 
 # Backup directory
 BACKUP_DIR_CONTAINER="/data/dump/"
-BACKUP_DIR_HOST="./dump/"
+BACKUP_DIR_HOST="./dump"
 
 # Timestamp for backup file name
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
@@ -20,7 +20,7 @@ TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 BACKUP_FILE="mongo-dump-$TIMESTAMP.gz"
 
 # Take a MongoDB dump from the Docker container
-docker exec "$MONGO_CONTAINER_NAME" /bin/sh -c "mongodump --gzip --db "$MONGO_DATABASE" --archive="$BACKUP_DIR_CONTAINER"db-dump.gz"
+docker exec "$MONGO_CONTAINER_NAME" /bin/sh -c "mongodump --gzip --db "$MONGO_DATABASE" --archive="$BACKUP_DIR_CONTAINER/$BACKUP_FILE""
 
 # Transfer the backup file to the remote server using SFTP
 sftp -o "IdentityFile=$SFTP_KEY" "$SFTP_USER@$SFTP_SERVER" << EOF
@@ -34,7 +34,3 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to transfer backup file."
 fi
-
-# Clean up - remove the local backup file and temporary directory
-# rm "$BACKUP_FILE"
-# rm -r "$TMP_DIR"
