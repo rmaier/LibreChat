@@ -11,7 +11,7 @@ MONGO_DATABASE="LibreChat"
 
 # Backup directory
 BACKUP_DIR_CONTAINER="/data/dump/"
-BACKUP_DIR_HOST="./dump/"
+BACKUP_DIR_HOST="/root/LibreChat/dump/"
 
 # Timestamp for backup file name
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
