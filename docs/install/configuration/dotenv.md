@@ -162,13 +162,14 @@ TITLE_CONVO=true
 - see also: [Custom Configuration](./custom_config.md)
 
 ```sh
-GROQ_API_KEY=
-SHUTTLEAI_KEY=
-OPENROUTER_KEY=
-MISTRAL_API_KEY=
 ANYSCALE_API_KEY=
+APIPIE_API_KEY=
 FIREWORKS_API_KEY=
+GROQ_API_KEY=
+MISTRAL_API_KEY=
+OPENROUTER_KEY=
 PERPLEXITY_API_KEY=
+SHUTTLEAI_API_KEY=
 TOGETHERAI_API_KEY=
 ```
 
@@ -523,7 +524,7 @@ Remember to replace placeholder text such as "Your DALL-E-3 System Prompt here" 
 See detailed instructions here: [Google Search](../../features/plugins/google_search.md)
 
 ```bash
-GOOGLE_API_KEY=
+GOOGLE_SEARCH_API_KEY=
 GOOGLE_CSE_ID=
 ```
 
