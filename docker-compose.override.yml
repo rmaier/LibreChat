@@ -25,6 +25,7 @@ services:
       - "./letsencrypt:/letsencrypt"
       networks:
       - web
+      - librechat_default
       command:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
