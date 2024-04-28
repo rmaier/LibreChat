@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set the working directory to the home directory of the current user
+cd "$HOME/LibreChat" || exit
+
 # SFTP connection details
 SFTP_SERVER="ssh.strato.de"
 SFTP_USER="ribeiromaier.de"
@@ -11,7 +14,7 @@ MONGO_DATABASE="LibreChat"
 
 # Backup directory
 BACKUP_DIR_CONTAINER="/data/dump/"
-BACKUP_DIR_HOST="/root/LibreChat/dump/"
+BACKUP_DIR_HOST="./dump/"
 
 # Timestamp for backup file name
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
