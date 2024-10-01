@@ -3,12 +3,11 @@ const express = require('express');
 const { CacheKeys } = require('librechat-data-provider');
 const { initializeClient } = require('~/server/services/Endpoints/assistants');
 const { getConvosByPage, deleteConvos, getConvo, saveConvo } = require('~/models/Conversation');
-const { IMPORT_CONVERSATION_JOB_NAME } = require('~/server/utils/import/jobDefinition');
 const { storage, importFileFilter } = require('~/server/routes/files/multer');
 const requireJwtAuth = require('~/server/middleware/requireJwtAuth');
 const { forkConversation } = require('~/server/utils/import/fork');
+const { importConversations } = require('~/server/utils/import');
 const { createImportLimiters } = require('~/server/middleware');
-const jobScheduler = require('~/server/utils/jobScheduler');
 const getLogStores = require('~/cache/getLogStores');
 const { sleep } = require('~/server/utils');
 const { logger } = require('~/config');
@@ -31,8 +30,14 @@ router.get('/', async (req, res) => {
     return res.status(400).json({ error: 'Invalid page size' });
   }
   const isArchived = req.query.isArchived === 'true';
+  let tags;
+  if (req.query.tags) {
+    tags = Array.isArray(req.query.tags) ? req.query.tags : [req.query.tags];
+  } else {
+    tags = undefined;
+  }
 
-  res.status(200).send(await getConvosByPage(req.user.id, pageNumber, pageSize, isArchived));
+  res.status(200).send(await getConvosByPage(req.user.id, pageNumber, pageSize, isArchived, tags));
 });
 
 router.get('/:conversationId', async (req, res) => {
@@ -104,8 +109,14 @@ router.post('/clear', async (req, res) => {
 router.post('/update', async (req, res) => {
   const update = req.body.arg;
 
+  if (!update.conversationId) {
+    return res.status(400).json({ error: 'conversationId is required' });
+  }
+
   try {
-    const dbResponse = await saveConvo(req.user.id, update);
+    const dbResponse = await saveConvo(req, update, {
+      context: `POST /api/convos/update ${update.conversationId}`,
+    });
     res.status(201).json(dbResponse);
   } catch (error) {
     logger.error('Error updating conversation', error);
@@ -129,10 +140,9 @@ router.post(
   upload.single('file'),
   async (req, res) => {
     try {
-      const filepath = req.file.path;
-      const job = await jobScheduler.now(IMPORT_CONVERSATION_JOB_NAME, filepath, req.user.id);
-
-      res.status(201).json({ message: 'Import started', jobId: job.id });
+      /* TODO: optimize to return imported conversations and add manually */
+      await importConversations({ filepath: req.file.path, requestUserId: req.user.id });
+      res.status(201).json({ message: 'Conversation(s) imported successfully' });
     } catch (error) {
       logger.error('Error processing file', error);
       res.status(500).send('Error processing file');
@@ -166,26 +176,6 @@ router.post('/fork', async (req, res) => {
   } catch (error) {
     logger.error('Error forking conversation', error);
     res.status(500).send('Error forking conversation');
-  }
-});
-
-// Get the status of an import job for polling
-router.get('/import/jobs/:jobId', async (req, res) => {
-  try {
-    const { jobId } = req.params;
-    const { userId, ...jobStatus } = await jobScheduler.getJobStatus(jobId);
-    if (!jobStatus) {
-      return res.status(404).json({ message: 'Job not found.' });
-    }
-
-    if (userId !== req.user.id) {
-      return res.status(403).json({ message: 'Unauthorized' });
-    }
-
-    res.json(jobStatus);
-  } catch (error) {
-    logger.error('Error getting job details', error);
-    res.status(500).send('Error getting job details');
   }
 });
 

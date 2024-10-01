@@ -19,6 +19,7 @@ export default {
   com_sidepanel_hide_panel: 'Nascondi Pannello',
   com_sidepanel_attach_files: 'Allega File',
   com_sidepanel_manage_files: 'Gestisci File',
+  com_sidepanel_conversation_tags: 'Segnalibri',
   com_assistants_capabilities: 'Capacità',
   com_assistants_knowledge: 'Conoscenza',
   com_assistants_knowledge_info:
@@ -31,7 +32,7 @@ export default {
     'I seguenti file sono disponibili solo per Code Interpreter:',
   com_assistants_retrieval: 'Retrival',
   com_assistants_search_name: 'Cerca assistenti per nome',
-  com_assistants_tools: 'Strumenti',
+  com_ui_tools: 'Strumenti',
   com_assistants_actions: 'Azioni',
   com_assistants_add_tools: 'Aggiungi Strumenti',
   com_assistants_add_actions: 'Aggiungi Azioni',
@@ -124,8 +125,6 @@ export default {
   com_ui_none_selected: 'Nessuna selezionata',
   com_ui_upload_success: 'File caricato con successo',
   com_ui_upload_error: 'Si è verificato un errore durante il caricamento del file',
-  com_ui_upload_invalid:
-    'File non valido per il caricamento. Deve essere un\'immagine non superiore a 2 MB',
   com_ui_cancel: 'Annulla',
   com_ui_save: 'Salva',
   com_ui_save_submit: 'Salva e Invia',
@@ -188,36 +187,58 @@ export default {
   com_ui_assistants_output: 'Output Assistenti',
   com_ui_delete: 'Elimina',
   com_ui_create: 'Crea',
-  com_ui_share: 'Share',
-  com_ui_share_link_to_chat: 'Share link to chat',
-  com_ui_share_error: 'There was an error sharing the chat link',
-  com_ui_share_create_message: 'Your name and any messages you add after sharing stay private.',
+  com_ui_share: 'Condividi',
+  com_ui_copy_link: 'Copia link',
+  com_ui_update_link: 'Aggiorna link',
+  com_ui_create_link: 'Crea link',
+  com_ui_share_link_to_chat: 'Condividi link a chat',
+  com_ui_share_error: 'Si è verificato un errore durante la condivisione del link della chat',
+  com_ui_share_retrieve_error:
+    'Si è verificato un errore durante l\'eliminazione del link condiviso.',
+  com_ui_share_delete_error: 'Si è verificato un errore durante l\'eliminazione del link condiviso.',
+  com_ui_share_create_message:
+    'Il tuo nome e qualsiasi messaggio aggiunto dopo la condivisione rimarranno privati.',
   com_ui_share_created_message:
-    'A public link to your chat has been created. Manage previously shared chats at any time via Settings.',
+    'È stato creato un link condiviso per la tua chat. Gestisci le chat condivise in precedenza in qualsiasi momento tramite Impostazioni.',
   com_ui_share_update_message:
-    'Your name, custom instructions, and any messages you add after sharing stay private.',
+    'Il tuo nome, istruzioni personalizzate e qualsiasi messaggio aggiunto dopo la condivisione rimarranno privati.',
   com_ui_share_updated_message:
-    'A public link to your chat has been updated. Manage previously shared chats at any time via Settings.',
-  com_ui_shared_link_not_found: 'Shared link not found',
+    'Il link condiviso per la tua chat è stato aggiornato. Gestisci le chat condivise in precedenza in qualsiasi momento tramite Impostazioni.',
+  com_ui_shared_link_not_found: 'Link condiviso non trovato',
   com_ui_delete_conversation: 'Eliminare la chat?',
-  com_ui_delete_conversation_confirm: 'Questo eliminerà',
-  com_ui_rename: 'Rinominare',
-  com_ui_archive: 'Arsip',
+  com_ui_delete_confirm: 'Questo eliminerà',
+  com_ui_rename: 'Rinomina',
+  com_ui_archive: 'Archivia',
   com_ui_archive_error: 'Errore durante l\'archiviazione della conversazione',
   com_ui_unarchive: 'Disarchivia',
   com_ui_unarchive_error: 'Impossibile disarchiviare la conversazione',
-  com_ui_more_options: 'Pi',
+  com_ui_more_options: 'Più',
   com_ui_delete_assistant_confirm:
     'Sei sicuro di voler eliminare questo Assistente? Questa operazione non può essere annullata.',
   com_ui_preview: 'Anteprima',
   com_ui_upload: 'Carica',
   com_ui_connect: 'Connetti',
+  com_ui_locked: 'Bloccato',
   com_ui_upload_delay:
     'Il caricamento di "{0}" sta richiedendo più tempo del previsto. Attendi il completamento dell\'indicizzazione per il recupero.',
   com_ui_privacy_policy: 'Informativa sulla privacy',
   com_ui_terms_of_service: 'Termini di servizio',
   com_ui_min_tags: 'Impossibile rimuovere altri valori, è richiesto un minimo di {0}.',
   com_ui_max_tags: 'Il numero massimo consentito è {0}, verranno utilizzati gli ultimi valori.',
+  com_ui_bookmarks: 'Segnalibri',
+  com_ui_bookmarks_rebuild: 'Ricostruisci',
+  com_ui_bookmarks_new: 'Nuovo Segnalibro',
+  com_ui_bookmark_delete_confirm: 'Sei sicuro di voler eliminare questo segnalibro?',
+  com_ui_bookmarks_title: 'Titolo',
+  com_ui_bookmarks_count: 'Conteggio',
+  com_ui_bookmarks_description: 'Descrizione',
+  com_ui_bookmarks_create_success: 'Segnalibro creato con successo',
+  com_ui_bookmarks_update_success: 'Segnalibro aggiornato con successo',
+  com_ui_bookmarks_delete_success: 'Segnalibro eliminato con successo',
+  com_ui_bookmarks_create_error: 'Si è verificato un errore durante la creazione del segnalibro',
+  com_ui_bookmarks_update_error: 'Si è verificato un errore durante l\'aggiornamento del segnalibro',
+  com_ui_bookmarks_delete_error: 'Si è verificato un errore durante l\'eliminazione del segnalibro',
+  com_ui_bookmarks_add_to_conversation: 'Aggiungi alla conversazione attuale',
   com_auth_error_login:
     'Impossibile eseguire l\'accesso con le informazioni fornite. Controlla le tue credenziali e riprova.',
   com_auth_error_login_rl:
@@ -287,7 +308,6 @@ export default {
     'ATTENZIONE: L\'uso improprio di questa funzione può farti BANNARE dall\'utilizzo di Bing! Clicca su "Messaggio di sistema" per le istruzioni complete e il messaggio predefinito se omesso, che è il preset "Sydney" considerato sicuro.',
   com_endpoint_system_message: 'Messaggio di sistema',
   com_endpoint_message: 'Messaggio',
-  com_endpoint_messages: 'Messaggi',
   com_endpoint_message_not_appendable: 'Modifica il tuo messaggio o Rigenera.',
   com_endpoint_default_blank: 'predefinito: vuoto',
   com_endpoint_default_false: 'predefinito: falso',
@@ -463,7 +483,7 @@ export default {
   com_nav_plugin_store: 'Store plugin',
   com_nav_plugin_install: 'Installa',
   com_nav_plugin_uninstall: 'Disinstalla',
-  com_nav_tool_add: 'Aggiungi',
+  com_ui_add: 'Aggiungi',
   com_nav_tool_remove: 'Rimuovi',
   com_nav_tool_dialog: 'Strumenti Assistente',
   com_nav_tool_dialog_description:
@@ -499,6 +519,7 @@ export default {
   com_nav_theme_light: 'Chiaro',
   com_nav_enter_to_send: 'Premi Invio per inviare messaggi',
   com_nav_user_name_display: 'Mostra nome utente nei messaggi',
+  com_nav_save_drafts: 'Salva bozze localmente',
   com_nav_show_code: 'Mostra sempre il codice quando si usa l\'interprete di codice',
   com_nav_clear_all_chats: 'Cancella tutte le chat',
   com_nav_confirm_clear: 'Conferma cancellazione',
@@ -520,8 +541,19 @@ export default {
   com_nav_help_faq: 'Guida e FAQ',
   com_nav_settings: 'Impostazioni',
   com_nav_search_placeholder: 'Cerca messaggi',
-  com_nav_setting_general: 'Generali',
-  com_nav_setting_beta: 'Funzionalità beta',
+  com_nav_delete_account: 'Elimina account',
+  com_nav_delete_account_confirm: 'Sei sicuro di voler eliminare il tuo account?',
+  com_nav_delete_account_button: 'Elimina permanentemente il mio account',
+  com_nav_delete_account_email_placeholder: 'Inserisci la tua email',
+  com_nav_delete_account_confirm_placeholder:
+    'Per procedere, digita "DELETE" nel campo di input sottostante',
+  com_dialog_delete_warning: 'ATTENZIONE: Questo cancellerà permanentemente il tuo account.',
+  com_dialog_delete_data_info: 'Tutti i tuoi dati verranno eliminati.',
+  com_dialog_delete_help_center: 'Per più informazioni, visita il nostro centro assistenza.',
+  com_nav_info_bookmarks_rebuild:
+    'Se il conteggio dei segnalibri è errato, ricostruisci le informazioni sui segnalibri. Il conteggio dei segnalibri verrà ricalcolato e i dati verranno ripristinati al loro stato corretto.',
+  com_nav_setting_general: 'Generale',
+  com_nav_setting_beta: 'Funzioni Beta',
   com_nav_setting_data: 'Controlli dati',
   com_nav_setting_speech: 'Voce',
   com_nav_setting_account: 'Account',
@@ -538,9 +570,6 @@ export default {
   com_ui_assistant_delete_error: 'Si è verificato un errore durante l\'eliminazione dell\'assistente',
   com_ui_copied: 'Copiato!',
   com_ui_copy_code: 'Copia codice',
-  com_ui_copy_link: 'Copia link',
-  com_ui_update_link: 'Aggiorna link',
-  com_ui_create_link: 'Crea link',
   com_nav_source_chat: 'Visualizza chat sorgente',
   com_ui_date_today: 'Oggi',
   com_ui_date_yesterday: 'Ieri',
@@ -563,6 +592,10 @@ export default {
   com_user_message: 'Mostra nome utente nei messaggi',
   com_ui_fork: 'Duplica',
   com_ui_mention: 'Menziona un endpoint, assistente o preset per passare rapidamente ad esso',
+  com_ui_accept: 'Accetto',
+  com_ui_decline: 'Non accetto',
+  com_ui_terms_and_conditions: 'Termini d\'uso',
+  com_ui_no_terms_content: 'Nessun contenuto dei termini d\'uso da visualizzare',
   com_endpoint_context_tokens: 'Token di Contesto Massimi',
   com_endpoint_context_info:
     'Il numero massimo di token che possono essere utilizzati per il contesto. Usalo per controllare quanti token vengono inviati per richiesta. Se non specificato, verranno utilizzate le impostazioni di sistema predefinite in base alle dimensioni del contesto dei modelli noti. Impostare valori più alti potrebbe causare errori e/o costi di token più elevati.',
@@ -650,6 +683,10 @@ export const comparisons = {
     english: 'Manage Files',
     translated: 'Gestisci File',
   },
+  com_sidepanel_conversation_tags: {
+    english: 'Bookmarks',
+    translated: 'Segnalibri',
+  },
   com_assistants_capabilities: {
     english: 'Capabilities',
     translated: 'Capacità',
@@ -690,7 +727,7 @@ export const comparisons = {
     english: 'Search assistants by name',
     translated: 'Cerca assistenti per nome',
   },
-  com_assistants_tools: {
+  com_ui_tools: {
     english: 'Tools',
     translated: 'Strumenti',
   },
@@ -1258,56 +1295,77 @@ export const comparisons = {
   },
   com_ui_share: {
     english: 'Share',
-    translated: 'Share',
+    translated: 'Condividi',
+  },
+  com_ui_copy_link: {
+    english: 'Copy link',
+    translated: 'Copia link',
+  },
+  com_ui_update_link: {
+    english: 'Update link',
+    translated: 'Aggiorna link',
+  },
+  com_ui_create_link: {
+    english: 'Create link',
+    translated: 'Crea link',
   },
   com_ui_share_link_to_chat: {
     english: 'Share link to chat',
-    translated: 'Share link to chat',
+    translated: 'Condividi link a chat',
+  },
+  com_ui_share_retrieve_error: {
+    english: 'There was an error deleting the shared link.',
+    translated: 'Si è verificato un errore durante l\'eliminazione del link condiviso.',
+  },
+  com_ui_share_delete_error: {
+    english: 'There was an error deleting the shared link.',
+    translated: 'Si è verificato un errore durante l\'eliminazione del link condiviso.',
   },
   com_ui_share_error: {
     english: 'There was an error sharing the chat link',
-    translated: 'There was an error sharing the chat link',
+    translated: 'Si è verificato un errore durante la condivisione del link della chat',
   },
   com_ui_share_create_message: {
     english: 'Your name and any messages you add after sharing stay private.',
-    translated: 'Your name and any messages you add after sharing stay private.',
+    translated:
+      'Il tuo nome e qualsiasi messaggio aggiunto dopo la condivisione rimarranno privati.',
   },
   com_ui_share_created_message: {
     english:
-      'A public link to your chat has been created. Manage previously shared chats at any time via Settings.',
+      'A shared link to your chat has been created. Manage previously shared chats at any time via Settings.',
     translated:
-      'A public link to your chat has been created. Manage previously shared chats at any time via Settings.',
+      'È stato creato un link condiviso per la tua chat. Gestisci le chat condivise in precedenza in qualsiasi momento tramite Impostazioni.',
   },
   com_ui_share_update_message: {
     english: 'Your name, custom instructions, and any messages you add after sharing stay private.',
     translated:
-      'Your name, custom instructions, and any messages you add after sharing stay private.',
+      'Il tuo nome, istruzioni personalizzate e qualsiasi messaggio aggiunto dopo la condivisione rimarranno privati.',
   },
   com_ui_share_updated_message: {
     english:
-      'A public link to your chat has been updated. Manage previously shared chats at any time via Settings.',
+      'A shared link to your chat has been updated. Manage previously shared chats at any time via Settings.',
     translated:
-      'A public link to your chat has been updated. Manage previously shared chats at any time via Settings.',
+      'Il link condiviso per la tua chat è stato aggiornato. Gestisci le chat condivise in precedenza in qualsiasi momento tramite Impostazioni.',
   },
   com_ui_shared_link_not_found: {
     english: 'Shared link not found',
-    translated: 'Shared link not found',
+    translated: 'Link condiviso non trovato',
   },
   com_ui_delete_conversation: {
     english: 'Delete chat?',
     translated: 'Eliminare la chat?',
   },
-  com_ui_delete_conversation_confirm: {
+  com_ui_delete_confirm: {
     english: 'This will delete',
     translated: 'Questo eliminerà',
   },
   com_ui_rename: {
     english: 'Rename',
-    translated: 'Rinominare',
+    translated: 'Rinomina',
   },
   com_ui_archive: {
     english: 'Archive',
-    translated: 'Arsip',
+    translated: 'Archivia',
   },
   com_ui_archive_error: {
     english: 'Failed to archive conversation',
@@ -1363,6 +1421,62 @@ export const comparisons = {
   com_ui_max_tags: {
     english: 'Maximum number allowed is {0}, using latest values.',
     translated: 'Il numero massimo consentito è {0}, verranno utilizzati gli ultimi valori.',
+  },
+  com_ui_bookmarks: {
+    english: 'Bookmarks',
+    translated: 'Segnalibri',
+  },
+  com_ui_bookmarks_rebuild: {
+    english: 'Rebuild',
+    translated: 'Ricostruisci',
+  },
+  com_ui_bookmarks_new: {
+    english: 'New Bookmark',
+    translated: 'Nuovo Segnalibro',
+  },
+  com_ui_bookmark_delete_confirm: {
+    english: 'Are you sure you want to delete this bookmark?',
+    translated: 'Sei sicuro di voler eliminare questo segnalibro?',
+  },
+  com_ui_bookmarks_title: {
+    english: 'Title',
+    translated: 'Titolo',
+  },
+  com_ui_bookmarks_count: {
+    english: 'Count',
+    translated: 'Conteggio',
+  },
+  com_ui_bookmarks_description: {
+    english: 'Description',
+    translated: 'Descrizione',
+  },
+  com_ui_bookmarks_create_success: {
+    english: 'Bookmark created successfully',
+    translated: 'Segnalibro creato con successo',
+  },
+  com_ui_bookmarks_update_success: {
+    english: 'Bookmark updated successfully',
+    translated: 'Segnalibro aggiornato con successo',
+  },
+  com_ui_bookmarks_delete_success: {
+    english: 'Bookmark deleted successfully',
+    translated: 'Segnalibro eliminato con successo',
+  },
+  com_ui_bookmarks_create_error: {
+    english: 'There was an error creating the bookmark',
+    translated: 'Si è verificato un errore durante la creazione del segnalibro',
+  },
+  com_ui_bookmarks_update_error: {
+    english: 'There was an error updating the bookmark',
+    translated: 'Si è verificato un errore durante l\'aggiornamento del segnalibro',
+  },
+  com_ui_bookmarks_delete_error: {
+    english: 'There was an error deleting the bookmark',
+    translated: 'Si è verificato un errore durante l\'eliminazione del segnalibro',
+  },
+  com_ui_bookmarks_add_to_conversation: {
+    english: 'Add to current conversation',
+    translated: 'Aggiungi alla conversazione attuale',
   },
   com_auth_error_login: {
     english:
@@ -1614,10 +1728,6 @@ export const comparisons = {
   com_endpoint_message: {
     english: 'Message',
     translated: 'Messaggio',
-  },
-  com_endpoint_messages: {
-    english: 'Messages',
-    translated: 'Messaggi',
   },
   com_endpoint_message_not_appendable: {
     english: 'Edit your message or Regenerate.',
@@ -2220,7 +2330,7 @@ export const comparisons = {
     english: 'Uninstall',
     translated: 'Disinstalla',
   },
-  com_nav_tool_add: {
+  com_ui_add: {
     english: 'Add',
     translated: 'Aggiungi',
   },
@@ -2349,6 +2459,10 @@ export const comparisons = {
     english: 'Light',
     translated: 'Chiaro',
   },
+  com_nav_font_size: {
+    english: 'Font Size',
+    translate: 'Dimensione del font',
+  },
   com_nav_enter_to_send: {
     english: 'Press Enter to send messages',
     translated: 'Premi Invio per inviare messaggi',
@@ -2356,6 +2470,10 @@ export const comparisons = {
   com_nav_user_name_display: {
     english: 'Display username in messages',
     translated: 'Mostra nome utente nei messaggi',
+  },
+  com_nav_save_drafts: {
+    english: 'Save drafts locally',
+    translated: 'Salva bozze localmente',
   },
   com_nav_show_code: {
     english: 'Always show code when using code interpreter',
@@ -2438,6 +2556,12 @@ export const comparisons = {
     english: 'Search messages',
     translated: 'Cerca messaggi',
   },
+  com_nav_info_bookmarks_rebuild: {
+    english:
+      'If the bookmark count is incorrect, please rebuild the bookmark information. The bookmark count will be recalculated and the data will be restored to its correct state.',
+    translated:
+      'Se il conteggio dei segnalibri è errato, ricostruisci le informazioni sui segnalibri. Il conteggio dei segnalibri verrà ricalcolato e i dati verranno ripristinati al loro stato corretto.',
+  },
   com_nav_setting_general: {
     english: 'General',
     translated: 'Generali',
@@ -2491,18 +2615,6 @@ export const comparisons = {
   com_ui_copy_code: {
     english: 'Copy code',
     translated: 'Copia codice',
-  },
-  com_ui_copy_link: {
-    english: 'Copy link',
-    translated: 'Copia link',
-  },
-  com_ui_update_link: {
-    english: 'Update link',
-    translated: 'Aggiorna link',
-  },
-  com_ui_create_link: {
-    english: 'Create link',
-    translated: 'Crea link',
   },
   com_nav_source_chat: {
     english: 'View source chat',

@@ -11,7 +11,7 @@ import MenuButton from './MenuButton';
 import ModelSpecs from './ModelSpecs';
 import store from '~/store';
 
-export default function ModelSpecsMenu({ modelSpecs }: { modelSpecs: TModelSpec[] }) {
+export default function ModelSpecsMenu({ modelSpecs }: { modelSpecs?: TModelSpec[] }) {
   const { conversation } = useChatContext();
   const { newConversation } = useNewConvo();
 
@@ -23,18 +23,19 @@ export default function ModelSpecsMenu({ modelSpecs }: { modelSpecs: TModelSpec[
     const { preset } = spec;
     preset.iconURL = getModelSpecIconURL(spec);
     preset.spec = spec.name;
-    const { endpoint: newEndpoint } = preset;
+    const { endpoint } = preset;
+    const newEndpoint = endpoint ?? '';
     if (!newEndpoint) {
       return;
     }
 
     const {
+      template,
       shouldSwitch,
       isNewModular,
+      newEndpointType,
       isCurrentModular,
       isExistingConversation,
-      newEndpointType,
-      template,
     } = getConvoSwitchLogic({
       newEndpoint,
       modularChat,
@@ -42,7 +43,12 @@ export default function ModelSpecsMenu({ modelSpecs }: { modelSpecs: TModelSpec[
       endpointsConfig,
     });
 
-    if (isExistingConversation && isCurrentModular && isNewModular && shouldSwitch) {
+    if (newEndpointType) {
+      preset.endpointType = newEndpointType;
+    }
+
+    const isModular = isCurrentModular && isNewModular && shouldSwitch;
+    if (isExistingConversation && isModular) {
       template.endpointType = newEndpointType as EModelEndpoint | undefined;
 
       const currentConvo = getDefaultConversation({
@@ -52,11 +58,20 @@ export default function ModelSpecsMenu({ modelSpecs }: { modelSpecs: TModelSpec[
       });
 
       /* We don't reset the latest message, only when changing settings mid-converstion */
-      newConversation({ template: currentConvo, preset, keepLatestMessage: true });
+      newConversation({
+        template: currentConvo,
+        preset,
+        keepLatestMessage: true,
+        keepAddedConvos: true,
+      });
       return;
     }
 
-    newConversation({ template: { ...(template as Partial<TConversation>) }, preset });
+    newConversation({
+      template: { ...(template as Partial<TConversation>) },
+      preset,
+      keepAddedConvos: isModular,
+    });
   };
 
   const selected = useMemo(() => {
@@ -77,7 +92,7 @@ export default function ModelSpecsMenu({ modelSpecs }: { modelSpecs: TModelSpec[
         endpointsConfig={endpointsConfig}
       />
       <Portal>
-        {modelSpecs && modelSpecs?.length && (
+        {modelSpecs && modelSpecs.length && (
           <div
             style={{
               position: 'fixed',

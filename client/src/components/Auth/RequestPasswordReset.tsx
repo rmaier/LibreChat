@@ -1,10 +1,36 @@
 import { useForm } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useState, ReactNode } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useRequestPasswordResetMutation } from 'librechat-data-provider/react-query';
 import type { TRequestPasswordReset, TRequestPasswordResetResponse } from 'librechat-data-provider';
+import type { FC } from 'react';
 import type { TLoginLayoutContext } from '~/common';
 import { useLocalize } from '~/hooks';
+
+const BodyTextWrapper: FC<{ children: ReactNode }> = ({ children }) => {
+  return (
+    <div
+      className="relative mt-4 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700 dark:bg-green-900 dark:text-white"
+      role="alert"
+    >
+      {children}
+    </div>
+  );
+};
+
+const ResetPasswordBodyText = () => {
+  const localize = useLocalize();
+  return (
+    <div className="flex flex-col">
+      {localize('com_auth_reset_password_if_email_exists')}
+      <span>
+        <a className="text-sm text-green-500 hover:underline" href="/login">
+          {localize('com_auth_back_to_login')}
+        </a>
+      </span>
+    </div>
+  );
+};
 
 function RequestPasswordReset() {
   const localize = useLocalize();
@@ -13,72 +39,39 @@ function RequestPasswordReset() {
     handleSubmit,
     formState: { errors },
   } = useForm<TRequestPasswordReset>();
-  const [resetLink, setResetLink] = useState<string | undefined>(undefined);
-  const [bodyText, setBodyText] = useState<React.ReactNode | undefined>(undefined);
-  const { startupConfig, setError, setHeaderText } = useOutletContext<TLoginLayoutContext>();
+  const [bodyText, setBodyText] = useState<ReactNode | undefined>(undefined);
+  const { startupConfig, setHeaderText } = useOutletContext<TLoginLayoutContext>();
 
   const requestPasswordReset = useRequestPasswordResetMutation();
 
   const onSubmit = (data: TRequestPasswordReset) => {
     requestPasswordReset.mutate(data, {
       onSuccess: (data: TRequestPasswordResetResponse) => {
-        if (!startupConfig?.emailEnabled) {
-          setResetLink(data.link);
+        if (data.link && !startupConfig?.emailEnabled) {
+          setHeaderText('com_auth_reset_password');
+          setBodyText(
+            <span>
+              {localize('com_auth_click')}{' '}
+              <a className="text-green-500 hover:underline" href={data.link}>
+                {localize('com_auth_here')}
+              </a>{' '}
+              {localize('com_auth_to_reset_your_password')}
+            </span>,
+          );
+        } else {
+          setHeaderText('com_auth_reset_password_link_sent');
+          setBodyText(<ResetPasswordBodyText />);
         }
       },
       onError: () => {
-        setError('com_auth_error_reset_password');
-        setTimeout(() => {
-          setError(null);
-        }, 5000);
+        setHeaderText('com_auth_reset_password_link_sent');
+        setBodyText(<ResetPasswordBodyText />);
       },
     });
   };
 
-  useEffect(() => {
-    if (bodyText) {
-      return;
-    }
-    if (!requestPasswordReset.isSuccess) {
-      setHeaderText('com_auth_reset_password');
-      setBodyText(undefined);
-      return;
-    }
-
-    if (startupConfig?.emailEnabled) {
-      setHeaderText('com_auth_reset_password_link_sent');
-      setBodyText(localize('com_auth_reset_password_email_sent'));
-      return;
-    }
-
-    setHeaderText('com_auth_reset_password');
-    setBodyText(
-      <span>
-        {localize('com_auth_click')}{' '}
-        <a className="text-green-500 hover:underline" href={resetLink}>
-          {localize('com_auth_here')}
-        </a>{' '}
-        {localize('com_auth_to_reset_your_password')}
-      </span>,
-    );
-  }, [
-    requestPasswordReset.isSuccess,
-    startupConfig?.emailEnabled,
-    resetLink,
-    localize,
-    setHeaderText,
-    bodyText,
-  ]);
-
   if (bodyText) {
-    return (
-      <div
-        className="relative mt-4 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700 dark:bg-green-900 dark:text-white"
-        role="alert"
-      >
-        {bodyText}
-      </div>
-    );
+    return <BodyTextWrapper>{bodyText}</BodyTextWrapper>;
   }
 
   return (
@@ -111,12 +104,20 @@ function RequestPasswordReset() {
               },
             })}
             aria-invalid={!!errors.email}
-            className="webkit-dark-styles peer block w-full appearance-none rounded-md border border-gray-300 bg-transparent px-3.5 pb-3.5 pt-4 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-green-500"
+            className="
+              webkit-dark-styles transition-color peer w-full rounded-2xl border border-border-light
+              bg-surface-primary px-3.5 pb-2.5 pt-3 text-text-primary duration-200 focus:border-green-500 focus:outline-none
+            "
             placeholder=" "
           />
           <label
             htmlFor="email"
-            className="absolute start-1 top-2 z-10 origin-[0] -translate-y-4 scale-75 transform bg-white px-3 text-sm text-gray-500 duration-100 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-3 peer-focus:text-green-600 dark:bg-gray-900 dark:text-gray-400 dark:peer-focus:text-green-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
+            className="
+            absolute start-3 top-1.5 z-10 origin-[0] -translate-y-4 scale-75 transform bg-surface-primary px-2 text-sm text-text-secondary-alt duration-200
+            peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100
+            peer-focus:top-1.5 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-green-500
+            rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4
+            "
           >
             {localize('com_auth_email_address')}
           </label>
@@ -131,7 +132,7 @@ function RequestPasswordReset() {
         <button
           type="submit"
           disabled={!!errors.email}
-          className="w-full transform rounded-md bg-green-500 px-4 py-3 tracking-wide text-white transition-colors duration-200 hover:bg-green-550 focus:bg-green-550 focus:outline-none disabled:cursor-not-allowed disabled:hover:bg-green-500"
+          className="btn-primary w-full transform rounded-2xl px-4 py-3 tracking-wide transition-colors duration-200"
         >
           {localize('com_auth_continue')}
         </button>

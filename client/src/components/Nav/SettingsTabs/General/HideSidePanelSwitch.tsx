@@ -20,10 +20,12 @@ export default function HideSidePanelSwitch({
 
   return (
     <div className="flex items-center justify-between">
-      <div> {localize('com_nav_hide_panel')} </div>
+      <div>{localize('com_nav_hide_panel')}</div>
+
       <Switch
         id="hideSidePanel"
         checked={hideSidePanel}
+        aria-label="Hide right-most side panel"
         onCheckedChange={handleCheckedChange}
         className="ml-4 mt-2"
         data-testid="hideSidePanel"

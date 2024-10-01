@@ -21,7 +21,9 @@ const mockStartupConfig = {
     openidLoginEnabled: true,
     openidLabel: 'Test OpenID',
     openidImageUrl: 'http://test-server.com',
-    ldapLoginEnabled: false,
+    ldap: {
+      enabled: false,
+    },
     registrationEnabled: true,
     emailLoginEnabled: true,
     socialLoginEnabled: true,
@@ -51,7 +53,12 @@ const setup = ({
       user: {},
     },
   },
-  useGetStartupCongfigReturnValue = mockStartupConfig,
+  useGetStartupConfigReturnValue = mockStartupConfig,
+  useGetBannerQueryReturnValue = {
+    isLoading: false,
+    isError: false,
+    data: {},
+  },
 } = {}) => {
   const mockUseLoginUser = jest
     .spyOn(mockDataProvider, 'useLoginUserMutation')
@@ -64,18 +71,22 @@ const setup = ({
   const mockUseGetStartupConfig = jest
     .spyOn(mockDataProvider, 'useGetStartupConfig')
     //@ts-ignore - we don't need all parameters of the QueryObserverSuccessResult
-    .mockReturnValue(useGetStartupCongfigReturnValue);
+    .mockReturnValue(useGetStartupConfigReturnValue);
   const mockUseRefreshTokenMutation = jest
     .spyOn(mockDataProvider, 'useRefreshTokenMutation')
     //@ts-ignore - we don't need all parameters of the QueryObserverSuccessResult
     .mockReturnValue(useRefreshTokenMutationReturnValue);
+  const mockUseGetBannerQuery = jest
+    .spyOn(mockDataProvider, 'useGetBannerQuery')
+    //@ts-ignore - we don't need all parameters of the QueryObserverSuccessResult
+    .mockReturnValue(useGetBannerQueryReturnValue);
   const mockUseOutletContext = jest.spyOn(reactRouter, 'useOutletContext').mockReturnValue({
-    startupConfig: useGetStartupCongfigReturnValue.data,
+    startupConfig: useGetStartupConfigReturnValue.data,
   });
   const renderResult = render(
     <AuthLayout
-      startupConfig={useGetStartupCongfigReturnValue.data as TStartupConfig}
-      isFetching={useGetStartupCongfigReturnValue.isFetching}
+      startupConfig={useGetStartupConfigReturnValue.data as TStartupConfig}
+      isFetching={useGetStartupConfigReturnValue.isFetching}
       error={null}
       startupConfigError={null}
       header={'Welcome back'}
@@ -91,6 +102,7 @@ const setup = ({
     mockUseOutletContext,
     mockUseGetStartupConfig,
     mockUseRefreshTokenMutation,
+    mockUseGetBannerQuery,
   };
 };
 
@@ -161,7 +173,7 @@ test('Navigates to / on successful login', async () => {
       isError: false,
       isSuccess: true,
     },
-    useGetStartupCongfigReturnValue: {
+    useGetStartupConfigReturnValue: {
       ...mockStartupConfig,
       data: {
         ...mockStartupConfig.data,

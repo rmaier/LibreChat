@@ -50,7 +50,12 @@ const setup = ({
       user: {},
     },
   },
-  useGetStartupCongfigReturnValue = mockStartupConfig,
+  useGetBannerQueryReturnValue = {
+    isLoading: false,
+    isError: false,
+    data: {},
+  },
+  useGetStartupConfigReturnValue = mockStartupConfig,
 } = {}) => {
   const mockUseRegisterUserMutation = jest
     .spyOn(mockDataProvider, 'useRegisterUserMutation')
@@ -63,18 +68,22 @@ const setup = ({
   const mockUseGetStartupConfig = jest
     .spyOn(mockDataProvider, 'useGetStartupConfig')
     //@ts-ignore - we don't need all parameters of the QueryObserverSuccessResult
-    .mockReturnValue(useGetStartupCongfigReturnValue);
+    .mockReturnValue(useGetStartupConfigReturnValue);
   const mockUseRefreshTokenMutation = jest
     .spyOn(mockDataProvider, 'useRefreshTokenMutation')
     //@ts-ignore - we don't need all parameters of the QueryObserverSuccessResult
     .mockReturnValue(useRefreshTokenMutationReturnValue);
   const mockUseOutletContext = jest.spyOn(reactRouter, 'useOutletContext').mockReturnValue({
-    startupConfig: useGetStartupCongfigReturnValue.data,
+    startupConfig: useGetStartupConfigReturnValue.data,
   });
+  const mockUseGetBannerQuery = jest
+    .spyOn(mockDataProvider, 'useGetBannerQuery')
+    //@ts-ignore - we don't need all parameters of the QueryObserverSuccessResult
+    .mockReturnValue(useGetBannerQueryReturnValue);
   const renderResult = render(
     <AuthLayout
-      startupConfig={useGetStartupCongfigReturnValue.data as TStartupConfig}
-      isFetching={useGetStartupCongfigReturnValue.isFetching}
+      startupConfig={useGetStartupConfigReturnValue.data as TStartupConfig}
+      isFetching={useGetStartupConfigReturnValue.isFetching}
       error={null}
       startupConfigError={null}
       header={'Create your account'}
