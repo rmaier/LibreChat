@@ -4,11 +4,13 @@ import type { ExtendedFile } from '~/common';
 import { useDeleteFilesMutation } from '~/data-provider';
 import { useFileDeletion } from '~/hooks/Files';
 import FileContainer from './FileContainer';
+import { logger } from '~/utils';
 import Image from './Image';
 
 export default function FileRow({
   files: _files,
   setFiles,
+  abortUpload,
   setFilesLoading,
   assistant_id,
   agent_id,
@@ -18,6 +20,7 @@ export default function FileRow({
   Wrapper,
 }: {
   files: Map<string, ExtendedFile> | undefined;
+  abortUpload?: () => void;
   setFiles: React.Dispatch<React.SetStateAction<Map<string, ExtendedFile>>>;
   setFilesLoading: React.Dispatch<React.SetStateAction<boolean>>;
   fileFilter?: (file: ExtendedFile) => boolean;
@@ -33,7 +36,8 @@ export default function FileRow({
 
   const { mutateAsync } = useDeleteFilesMutation({
     onMutate: async () =>
-      console.log(
+      logger.log(
+        'agents',
         'Deleting files: agent_id, assistant_id, tool_resource',
         agent_id,
         assistant_id,
@@ -69,8 +73,22 @@ export default function FileRow({
   }
 
   const renderFiles = () => {
-    // Inline style for RTL
-    const rowStyle = isRTL ? { display: 'flex', flexDirection: 'row-reverse' } : {};
+    const rowStyle = isRTL
+      ? {
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        flexWrap: 'wrap',
+        gap: '4px',
+        width: '100%',
+        maxWidth: '100%',
+      }
+      : {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '4px',
+        width: '100%',
+        maxWidth: '100%',
+      };
 
     return (
       <div style={rowStyle as React.CSSProperties}>
@@ -86,20 +104,35 @@ export default function FileRow({
             { map: new Map(), uniqueFiles: [] as ExtendedFile[] },
           )
           .uniqueFiles.map((file: ExtendedFile, index: number) => {
-            const handleDelete = () => deleteFile({ file, setFiles });
+            const handleDelete = () => {
+              if (abortUpload && file.progress < 1) {
+                abortUpload();
+              }
+              deleteFile({ file, setFiles });
+            };
             const isImage = file.type?.startsWith('image') ?? false;
-            if (isImage) {
-              return (
-                <Image
-                  key={index}
-                  url={file.preview ?? file.filepath}
-                  onDelete={handleDelete}
-                  progress={file.progress}
-                  source={file.source}
-                />
-              );
-            }
-            return <FileContainer key={index} file={file} onDelete={handleDelete} />;
+
+            return (
+              <div
+                key={index}
+                style={{
+                  flexBasis: '70px',
+                  flexGrow: 0,
+                  flexShrink: 0,
+                }}
+              >
+                {isImage ? (
+                  <Image
+                    url={file.preview ?? file.filepath}
+                    onDelete={handleDelete}
+                    progress={file.progress}
+                    source={file.source}
+                  />
+                ) : (
+                  <FileContainer file={file} onDelete={handleDelete} />
+                )}
+              </div>
+            );
           })}
       </div>
     );

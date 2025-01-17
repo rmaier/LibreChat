@@ -125,12 +125,13 @@ const standardDependencies = {
   '@radix-ui/react-toggle-group': '^1.1.0',
   'embla-carousel-react': '^8.2.0',
   'react-day-picker': '^9.0.8',
+  'dat.gui': '^0.7.9',
   vaul: '^0.9.1',
 };
 
 const mermaidDependencies = Object.assign(
   {
-    mermaid: '^11.0.2',
+    mermaid: '^11.4.1',
     'react-zoom-pan-pinch': '^3.6.1',
   },
   standardDependencies,

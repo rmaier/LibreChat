@@ -13,7 +13,6 @@ const {
   validateVisionModel,
   mapModelToAzureConfig,
 } = require('librechat-data-provider');
-const { encoding_for_model: encodingForModel, get_encoding: getEncoding } = require('tiktoken');
 const {
   extractBaseURL,
   constructAzureURL,
@@ -29,6 +28,7 @@ const {
   createContextHandlers,
 } = require('./prompts');
 const { encodeAndFormat } = require('~/server/services/Files/images/encode');
+const Tokenizer = require('~/server/services/Tokenizer');
 const { spendTokens } = require('~/models/spendTokens');
 const { isEnabled, sleep } = require('~/server/utils');
 const { handleOpenAIErrors } = require('./tools/util');
@@ -39,11 +39,6 @@ const { runTitleChain } = require('./chains');
 const { tokenSplit } = require('./document');
 const BaseClient = require('./BaseClient');
 const { logger } = require('~/config');
-
-// Cache to store Tiktoken instances
-const tokenizersCache = {};
-// Counter for keeping track of the number of tokenizer calls
-let tokenizerCallsCount = 0;
 
 class OpenAIClient extends BaseClient {
   constructor(apiKey, options = {}) {
@@ -68,6 +63,8 @@ class OpenAIClient extends BaseClient {
 
     /** @type {OpenAIUsageMetadata | undefined} */
     this.usage;
+    /** @type {boolean|undefined} */
+    this.isO1Model;
   }
 
   // TODO: PluginsClient calls this 3x, unneeded
@@ -104,6 +101,9 @@ class OpenAIClient extends BaseClient {
     } else {
       this.checkVisionRequest(this.options.attachments);
     }
+
+    const o1Pattern = /\bo1\b/i;
+    this.isO1Model = o1Pattern.test(this.modelOptions.model);
 
     const { OPENROUTER_API_KEY, OPENAI_FORCE_PROMPT } = process.env ?? {};
     if (OPENROUTER_API_KEY && !this.azure) {
@@ -143,7 +143,7 @@ class OpenAIClient extends BaseClient {
     const { model } = this.modelOptions;
 
     this.isChatCompletion =
-      /\bo1\b/i.test(model) || model.includes('gpt') || this.useOpenRouter || !!reverseProxy;
+      o1Pattern.test(model) || model.includes('gpt') || this.useOpenRouter || !!reverseProxy;
     this.isChatGptModel = this.isChatCompletion;
     if (
       model.includes('text-davinci') ||
@@ -302,75 +302,8 @@ class OpenAIClient extends BaseClient {
     }
   }
 
-  // Selects an appropriate tokenizer based on the current configuration of the client instance.
-  // It takes into account factors such as whether it's a chat completion, an unofficial chat GPT model, etc.
-  selectTokenizer() {
-    let tokenizer;
-    this.encoding = 'text-davinci-003';
-    if (this.isChatCompletion) {
-      this.encoding = this.modelOptions.model.includes('gpt-4o') ? 'o200k_base' : 'cl100k_base';
-      tokenizer = this.constructor.getTokenizer(this.encoding);
-    } else if (this.isUnofficialChatGptModel) {
-      const extendSpecialTokens = {
-        '<|im_start|>': 100264,
-        '<|im_end|>': 100265,
-      };
-      tokenizer = this.constructor.getTokenizer(this.encoding, true, extendSpecialTokens);
-    } else {
-      try {
-        const { model } = this.modelOptions;
-        this.encoding = model.includes('instruct') ? 'text-davinci-003' : model;
-        tokenizer = this.constructor.getTokenizer(this.encoding, true);
-      } catch {
-        tokenizer = this.constructor.getTokenizer('text-davinci-003', true);
-      }
-    }
-
-    return tokenizer;
-  }
-
-  // Retrieves a tokenizer either from the cache or creates a new one if one doesn't exist in the cache.
-  // If a tokenizer is being created, it's also added to the cache.
-  static getTokenizer(encoding, isModelName = false, extendSpecialTokens = {}) {
-    let tokenizer;
-    if (tokenizersCache[encoding]) {
-      tokenizer = tokenizersCache[encoding];
-    } else {
-      if (isModelName) {
-        tokenizer = encodingForModel(encoding, extendSpecialTokens);
-      } else {
-        tokenizer = getEncoding(encoding, extendSpecialTokens);
-      }
-      tokenizersCache[encoding] = tokenizer;
-    }
-    return tokenizer;
-  }
-
-  // Frees all encoders in the cache and resets the count.
-  static freeAndResetAllEncoders() {
-    try {
-      Object.keys(tokenizersCache).forEach((key) => {
-        if (tokenizersCache[key]) {
-          tokenizersCache[key].free();
-          delete tokenizersCache[key];
-        }
-      });
-      // Reset count
-      tokenizerCallsCount = 1;
-    } catch (error) {
-      logger.error('[OpenAIClient] Free and reset encoders error', error);
-    }
-  }
-
-  // Checks if the cache of tokenizers has reached a certain size. If it has, it frees and resets all tokenizers.
-  resetTokenizersIfNecessary() {
-    if (tokenizerCallsCount >= 25) {
-      if (this.options.debug) {
-        logger.debug('[OpenAIClient] freeAndResetAllEncoders: reached 25 encodings, resetting...');
-      }
-      this.constructor.freeAndResetAllEncoders();
-    }
-    tokenizerCallsCount++;
+  getEncoding() {
+    return this.model?.includes('gpt-4o') ? 'o200k_base' : 'cl100k_base';
   }
 
   /**
@@ -379,15 +312,8 @@ class OpenAIClient extends BaseClient {
    * @returns {number} The token count of the given text.
    */
   getTokenCount(text) {
-    this.resetTokenizersIfNecessary();
-    try {
-      const tokenizer = this.selectTokenizer();
-      return tokenizer.encode(text, 'all').length;
-    } catch (error) {
-      this.constructor.freeAndResetAllEncoders();
-      const tokenizer = this.selectTokenizer();
-      return tokenizer.encode(text, 'all').length;
-    }
+    const encoding = this.getEncoding();
+    return Tokenizer.getTokenCount(text, encoding);
   }
 
   /**
@@ -419,6 +345,7 @@ class OpenAIClient extends BaseClient {
       promptPrefix: this.options.promptPrefix,
       resendFiles: this.options.resendFiles,
       imageDetail: this.options.imageDetail,
+      modelLabel: this.options.modelLabel,
       iconURL: this.options.iconURL,
       greeting: this.options.greeting,
       spec: this.options.spec,
@@ -545,12 +472,10 @@ class OpenAIClient extends BaseClient {
       promptPrefix = this.augmentedPrompt + promptPrefix;
     }
 
-    const isO1Model = /\bo1\b/i.test(this.modelOptions.model);
-    if (promptPrefix && !isO1Model) {
+    if (promptPrefix && this.isO1Model !== true) {
       promptPrefix = `Instructions:\n${promptPrefix.trim()}`;
       instructions = {
         role: 'system',
-        name: 'instructions',
         content: promptPrefix,
       };
 
@@ -575,7 +500,7 @@ class OpenAIClient extends BaseClient {
     };
 
     /** EXPERIMENTAL */
-    if (promptPrefix && isO1Model) {
+    if (promptPrefix && this.isO1Model === true) {
       const lastUserMessageIndex = payload.findLastIndex((message) => message.role === 'user');
       if (lastUserMessageIndex !== -1) {
         payload[
@@ -686,7 +611,7 @@ class OpenAIClient extends BaseClient {
   }
 
   initializeLLM({
-    model = 'gpt-3.5-turbo',
+    model = 'gpt-4o-mini',
     modelName,
     temperature = 0.2,
     presence_penalty = 0,
@@ -791,7 +716,7 @@ class OpenAIClient extends BaseClient {
 
     const { OPENAI_TITLE_MODEL } = process.env ?? {};
 
-    let model = this.options.titleModel ?? OPENAI_TITLE_MODEL ?? 'gpt-3.5-turbo';
+    let model = this.options.titleModel ?? OPENAI_TITLE_MODEL ?? 'gpt-4o-mini';
     if (model === Constants.CURRENT_MODEL) {
       model = this.modelOptions.model;
     }
@@ -836,30 +761,36 @@ class OpenAIClient extends BaseClient {
       this.options.dropParams = azureConfig.groupMap[groupName].dropParams;
       this.options.forcePrompt = azureConfig.groupMap[groupName].forcePrompt;
       this.azure = !serverless && azureOptions;
+      if (serverless === true) {
+        this.options.defaultQuery = azureOptions.azureOpenAIApiVersion
+          ? { 'api-version': azureOptions.azureOpenAIApiVersion }
+          : undefined;
+        this.options.headers['api-key'] = this.apiKey;
+      }
     }
 
     const titleChatCompletion = async () => {
-      modelOptions.model = model;
+      try {
+        modelOptions.model = model;
 
-      if (this.azure) {
-        modelOptions.model = process.env.AZURE_OPENAI_DEFAULT_MODEL ?? modelOptions.model;
-        this.azureEndpoint = genAzureChatCompletion(this.azure, modelOptions.model, this);
-      }
+        if (this.azure) {
+          modelOptions.model = process.env.AZURE_OPENAI_DEFAULT_MODEL ?? modelOptions.model;
+          this.azureEndpoint = genAzureChatCompletion(this.azure, modelOptions.model, this);
+        }
 
-      const instructionsPayload = [
-        {
-          role: this.options.titleMessageRole ?? (this.isOllama ? 'user' : 'system'),
-          content: `Please generate ${titleInstruction}
+        const instructionsPayload = [
+          {
+            role: this.options.titleMessageRole ?? (this.isOllama ? 'user' : 'system'),
+            content: `Please generate ${titleInstruction}
 
 ${convo}
 
 ||>Title:`,
-        },
-      ];
+          },
+        ];
 
-      const promptTokens = this.getTokenCountForMessage(instructionsPayload[0]);
+        const promptTokens = this.getTokenCountForMessage(instructionsPayload[0]);
 
-      try {
         let useChatCompletion = true;
 
         if (this.options.reverseProxyUrl === CohereConstants.API_URL) {
@@ -974,7 +905,7 @@ ${convo}
     let prompt;
 
     // TODO: remove the gpt fallback and make it specific to endpoint
-    const { OPENAI_SUMMARY_MODEL = 'gpt-3.5-turbo' } = process.env ?? {};
+    const { OPENAI_SUMMARY_MODEL = 'gpt-4o-mini' } = process.env ?? {};
     let model = this.options.summaryModel ?? OPENAI_SUMMARY_MODEL;
     if (model === Constants.CURRENT_MODEL) {
       model = this.modelOptions.model;
@@ -1167,6 +1098,10 @@ ${convo}
         opts.defaultHeaders = { ...opts.defaultHeaders, ...this.options.headers };
       }
 
+      if (this.options.defaultQuery) {
+        opts.defaultQuery = this.options.defaultQuery;
+      }
+
       if (this.options.proxy) {
         opts.httpAgent = new HttpsProxyAgent(this.options.proxy);
       }
@@ -1205,6 +1140,12 @@ ${convo}
         this.azure = !serverless && azureOptions;
         this.azureEndpoint =
           !serverless && genAzureChatCompletion(this.azure, modelOptions.model, this);
+        if (serverless === true) {
+          this.options.defaultQuery = azureOptions.azureOpenAIApiVersion
+            ? { 'api-version': azureOptions.azureOpenAIApiVersion }
+            : undefined;
+          this.options.headers['api-key'] = this.apiKey;
+        }
       }
 
       if (this.azure || this.options.azure) {
@@ -1225,6 +1166,11 @@ ${convo}
 
         opts.defaultQuery = { 'api-version': this.azure.azureOpenAIApiVersion };
         opts.defaultHeaders = { ...opts.defaultHeaders, 'api-key': this.apiKey };
+      }
+
+      if (this.isO1Model === true && modelOptions.max_tokens != null) {
+        modelOptions.max_completion_tokens = modelOptions.max_tokens;
+        delete modelOptions.max_tokens;
       }
 
       if (process.env.OPENAI_ORGANIZATION) {
@@ -1301,7 +1247,11 @@ ${convo}
       /** @type {(value: void | PromiseLike<void>) => void} */
       let streamResolve;
 
-      if (modelOptions.stream && /\bo1\b/i.test(modelOptions.model)) {
+      if (
+        this.isO1Model === true &&
+        (this.azure || /o1(?!-(?:mini|preview)).*$/.test(modelOptions.model)) &&
+        modelOptions.stream
+      ) {
         delete modelOptions.stream;
         delete modelOptions.stop;
       }

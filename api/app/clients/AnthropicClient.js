@@ -1,6 +1,5 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { HttpsProxyAgent } = require('https-proxy-agent');
-const { encoding_for_model: encodingForModel, get_encoding: getEncoding } = require('tiktoken');
 const {
   Constants,
   EModelEndpoint,
@@ -19,14 +18,13 @@ const {
 } = require('./prompts');
 const { getModelMaxTokens, getModelMaxOutputTokens, matchModelName } = require('~/utils');
 const { spendTokens, spendStructuredTokens } = require('~/models/spendTokens');
+const Tokenizer = require('~/server/services/Tokenizer');
 const { sleep } = require('~/server/utils');
 const BaseClient = require('./BaseClient');
 const { logger } = require('~/config');
 
 const HUMAN_PROMPT = '\n\nHuman:';
 const AI_PROMPT = '\n\nAssistant:';
-
-const tokenizersCache = {};
 
 /** Helper function to introduce a delay before retrying */
 function delayBeforeRetry(attempts, baseDelay = 1000) {
@@ -98,8 +96,8 @@ class AnthropicClient extends BaseClient {
     );
 
     const modelMatch = matchModelName(this.modelOptions.model, EModelEndpoint.anthropic);
-    this.isClaude3 = modelMatch.startsWith('claude-3');
-    this.isLegacyOutput = !modelMatch.startsWith('claude-3-5-sonnet');
+    this.isClaude3 = modelMatch.includes('claude-3');
+    this.isLegacyOutput = !modelMatch.includes('claude-3-5-sonnet');
     this.supportsCacheControl =
       this.options.promptCache && this.checkPromptCacheSupport(modelMatch);
 
@@ -149,7 +147,6 @@ class AnthropicClient extends BaseClient {
 
     this.startToken = '||>';
     this.endToken = '';
-    this.gptEncoder = this.constructor.getTokenizer('cl100k_base');
 
     return this;
   }
@@ -634,7 +631,7 @@ class AnthropicClient extends BaseClient {
       );
     };
 
-    if (this.modelOptions.model.startsWith('claude-3')) {
+    if (this.modelOptions.model.includes('claude-3')) {
       await buildMessagesPayload();
       processTokens();
       return {
@@ -682,8 +679,12 @@ class AnthropicClient extends BaseClient {
    */
   checkPromptCacheSupport(modelName) {
     const modelMatch = matchModelName(modelName, EModelEndpoint.anthropic);
+    if (modelMatch.includes('claude-3-5-sonnet-latest')) {
+      return false;
+    }
     if (
       modelMatch === 'claude-3-5-sonnet' ||
+      modelMatch === 'claude-3-5-haiku' ||
       modelMatch === 'claude-3-haiku' ||
       modelMatch === 'claude-3-opus'
     ) {
@@ -845,22 +846,18 @@ class AnthropicClient extends BaseClient {
     logger.debug('AnthropicClient doesn\'t use getBuildMessagesOptions');
   }
 
-  static getTokenizer(encoding, isModelName = false, extendSpecialTokens = {}) {
-    if (tokenizersCache[encoding]) {
-      return tokenizersCache[encoding];
-    }
-    let tokenizer;
-    if (isModelName) {
-      tokenizer = encodingForModel(encoding, extendSpecialTokens);
-    } else {
-      tokenizer = getEncoding(encoding, extendSpecialTokens);
-    }
-    tokenizersCache[encoding] = tokenizer;
-    return tokenizer;
+  getEncoding() {
+    return 'cl100k_base';
   }
 
+  /**
+   * Returns the token count of a given text. It also checks and resets the tokenizers if necessary.
+   * @param {string} text - The text to get the token count for.
+   * @returns {number} The token count of the given text.
+   */
   getTokenCount(text) {
-    return this.gptEncoder.encode(text, 'all').length;
+    const encoding = this.getEncoding();
+    return Tokenizer.getTokenCount(text, encoding);
   }
 
   /**

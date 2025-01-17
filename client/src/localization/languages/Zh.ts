@@ -46,6 +46,8 @@ export default {
   com_assistants_knowledge_disabled:
     '必须创建助手，且启用并保存代码解释器或检索，才能将文件作为知识上传。',
   com_assistants_image_vision: '识图',
+  com_assistants_append_date: '添加当前日期和时间',
+  com_assistants_append_date_tooltip: '启用后，当前客户的日期和时间将附加到助手的系统指令中。',
   com_assistants_code_interpreter: '代码解释器',
   com_assistants_code_interpreter_files: '以下文件仅适用于代码解释器：',
   com_assistants_retrieval: '检索',
@@ -514,7 +516,7 @@ export default {
   com_endpoint_preset_default_item: '默认：',
   com_endpoint_preset_default_none: '无默认预设可用。',
   com_endpoint_preset_title: '预设',
-  com_endpoint_preset_saved: '保存成功！',
+  com_ui_saved: '保存成功！',
   com_endpoint_preset_default: '现在是默认预设。',
   com_endpoint_preset: '预设',
   com_endpoint_presets: '预设',
@@ -706,7 +708,7 @@ export default {
   com_nav_voice_select: '语音',
   com_nav_enable_cloud_browser_voice: '使用云端语音',
   com_nav_info_enter_to_send:
-    '启用后，按下 `ENTER` 将发送您的消息。禁用后，按下 `ENTER` 将添加新行，您需要按下 `CTRL + ENTER` 来发送消息。',
+    '启用后，按下 `ENTER` 将发送您的消息。禁用后，按下 `ENTER` 将添加新行，您需要按下 `CTRL + ENTER` / `⌘ + ENTER` 来发送消息。',
   com_nav_info_save_draft:
     '启用后，您在聊天表单中输入的文本和附件将自动本地保存为草稿。即使您重新加载页面或切换到不同的对话，这些草稿也将可用。草稿存储在您设备的本地，并在消息发送后删除。',
   com_nav_info_fork_change_default:
@@ -764,4 +766,142 @@ export default {
   com_ui_decline: '我不接受',
   com_ui_terms_and_conditions: '条款和条件',
   com_ui_no_terms_content: '没有可显示的条款和条件内容',
+  com_warning_resubmit_unsupported: '此终端不支持重新提交AI消息',
+
+  com_error_files_empty: '不允许上传空文件',
+
+  com_error_files_dupe: '检测到重复文件',
+
+  com_error_invalid_request_error:
+    'AI服务因错误拒绝了请求。这可能是由于API密钥无效或请求格式不正确导致的。',
+
+  com_error_files_validation: '验证文件时出错。',
+
+  com_error_files_process: '处理文件时发生错误',
+
+  com_error_no_system_messages:
+    '所选的AI服务或模型不支持系统消息功能。请尝试使用提示词来替代自定义指令。',
+
+  com_error_files_upload: '上传文件时发生错误',
+
+  com_generated_files: '生成的文件',
+
+  com_error_files_upload_canceled:
+    '文件上传请求已取消。注意：文件上传可能仍在进行中，需要手动删除。',
+
+  com_download_expired: '下载已过期',
+
+  com_click_to_download: '（点击此处下载）',
+
+  com_agents_missing_provider_model: '请在创建代理前选择提供商和模型',
+
+  com_download_expires: '(点击此处下载 - {0}后过期)',
+
+  com_agents_not_available: '助手不可用',
+
+  com_agents_allow_editing: '允许其他用户编辑您的助手',
+
+  com_agents_no_access: '您没有权限编辑此Agent。',
+
+  com_agents_enable_file_search: '启用文件搜索',
+
+  com_agents_file_search_info:
+    '启用后，系统会告知Agent以下列出的具体文件名，使其能够从这些文件中检索相关内容。',
+
+  com_ui_run_code: '运行代码',
+
+  com_agents_file_search_disabled: '必须先创建Agent，才能上传文件用于文件搜索。',
+
+  com_ui_agent_editing_allowed: '其他用户已可以编辑此助手',
+
+  com_ui_agent_already_shared_to_all: '该助手已对所有用户开放共享',
+
+  com_ui_no_changes: '无需更新',
+
+  com_ui_region: '区域',
+
+  com_ui_select_region: '选择地区',
+
+  com_ui_select_search_region: '以名称搜索区域',
+
+  com_ui_revoke_keys: '撤销密钥',
+
+  com_ui_revoke_key_endpoint: '撤销 {0} 的密钥',
+
+  com_ui_revoke_keys_confirm: '您确定要撤销所有密钥吗？',
+
+  com_ui_revoke_key_confirm: '您确定要撤销此密钥吗？',
+
+  com_ui_bookmarks_delete: '删除书签',
+
+  com_endpoint_search: '按名称搜索渠道',
+
+  com_ui_add_multi_conversation: '添加多个对话',
+
+  com_nav_tool_dialog_agents: 'Agent工具',
+
+  com_nav_stop_generating: '停止生成',
+
+  com_nav_user_msg_markdown: '以 Markdown 格式显示用户消息',
+
+  com_nav_chat_commands: '对话命令',
+
+  com_nav_clear_cache_confirm_message: '您确定要清除缓存吗？',
+
+  com_nav_no_search_results: '未找到搜索结果',
+
+  com_nav_chat_commands_info:
+    '这些命令通过在您的消息开头输入特定字符来激活。每个命令都由其指定的前缀触发。如果您经常在消息开头使用这些字符，可以选择禁用这些命令。',
+  com_ui_enter_api_key: '输入API密钥',
+  com_ui_librechat_code_api_title: '运行AI代码',
+  com_error_invalid_action_error: '请求被拒绝：不允许使用指定的操作域。',
+  com_ui_librechat_code_api_subtitle: '安全可靠。多语言支持。文件输入/输出。',
+  com_error_files_unsupported_capability: '未启用支持此类文件的功能',
+  com_sidepanel_select_agent: '选择助手',
+  com_ui_librechat_code_api_key: '获取您的 LibreChat 代码解释器 API 密钥',
+  com_agents_by_librechat: '由 LibreChat 提供',
+  com_agents_code_interpreter_title: '代码解释器 API',
+  com_agents_code_interpreter:
+    '启用后，您的代理可以安全地使用LibreChat代码解释器API来运行生成的代码，包括文件处理功能。需要有效的API密钥。',
+  com_ui_endpoint_menu: 'LLM 终端菜单',
+  com_ui_endpoints_available: '可用渠道',
+  com_ui_llms_available: '可用的LLM模型',
+  com_ui_export_convo_modal: '导出对话窗口',
+  com_ui_llm_menu: 'LLM菜单',
+  com_ui_select_search_provider: '以名称搜索服务商',
+  com_ui_upload_type: '选择上传类型',
+  com_ui_reset_var: '重置{0}',
+  com_ui_upload_image_input: '上传图片',
+  com_ui_upload_file_search: '上传文件搜索',
+  com_ui_role_select: '角色',
+  com_ui_upload_code_files: '上传代码解释器文件',
+  com_ui_zoom: '缩放',
+  com_ui_duplication_success: '成功复制对话',
+  com_ui_admin_access_warning:
+    '禁用管理员对此功能的访问可能会导致界面出现异常，需要刷新页面。如果保存此设置，唯一的恢复方式是通过 librechat.yaml 配置文件中的界面设置进行修改，这将影响所有角色。',
+  com_ui_duplication_processing: '正在复制对话...',
+  com_ui_run_code_error: '代码运行出错',
+  com_ui_duplication_error: '复制对话时出现错误',
+  com_ui_logo: '{0}标识',
+  com_ui_agents_allow_create: '允许创建助手',
+  com_ui_agents_allow_use: '允许使用助手',
+  com_ui_agents_allow_share_global: '允许与所有用户共享助手',
+  com_ui_agent_duplicated: '助手复制成功',
+  com_ui_agent_duplicate_error: '复制助手时发生错误',
+  com_ui_schema: '架构',
+  com_ui_duplicate: '复制',
+  com_ui_more_info: '更多信息',
+  com_ui_privacy_policy_url: '隐私政策链接',
+  com_ui_enter_openapi_schema: '请在此输入OpenAPI架构',
+  com_ui_duplicate_agent_confirm: '您确定要复制此助手吗？',
+  com_endpoint_agent_placeholder: '请选择代理',
+  com_ui_delete_shared_link: '删除分享链接？',
+  com_nav_welcome_agent: '请选择 Agent',
+  com_ui_bookmarks_add: '添加书签',
+  com_ui_bookmarks_edit: '编辑书签',
+  com_endpoint_ai: '人工智能',
+  com_ui_page: '页面',
+  com_nav_maximize_chat_space: '最大化聊天窗口',
+  com_endpoint_message_new: '发送消息 {0} 或输入"@"切换AI',
+  com_ui_collapse_chat: '收起聊天',
 };

@@ -4,16 +4,19 @@ import type { TConversation } from 'librechat-data-provider';
 import { OGDialog, Button, Input, Label, Checkbox, Dropdown } from '~/components/ui';
 import OGDialogTemplate from '~/components/ui/OGDialogTemplate';
 import { useLocalize, useExportConversation } from '~/hooks';
-import { cn, defaultTextProps } from '~/utils';
 
 export default function ExportModal({
   open,
   onOpenChange,
   conversation,
+  triggerRef,
+  children,
 }: {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
   conversation: TConversation | null;
+  onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+  triggerRef?: React.RefObject<HTMLButtonElement>;
+  children?: React.ReactNode;
 }) {
   const localize = useLocalize();
 
@@ -31,6 +34,12 @@ export default function ExportModal({
     { value: 'json', label: 'json (.json)' },
     { value: 'csv', label: 'csv (.csv)' },
   ];
+
+  useEffect(() => {
+    if (!open && triggerRef && triggerRef.current) {
+      triggerRef.current.focus();
+    }
+  }, [open, triggerRef]);
 
   useEffect(() => {
     setFileName(filenamify(String(conversation?.title ?? 'file')));
@@ -62,7 +71,8 @@ export default function ExportModal({
   });
 
   return (
-    <OGDialog open={open} onOpenChange={onOpenChange}>
+    <OGDialog open={open} onOpenChange={onOpenChange} triggerRef={triggerRef}>
+      {children}
       <OGDialogTemplate
         title={localize('com_nav_export_conversation')}
         className="max-w-full sm:max-w-2xl"
@@ -78,10 +88,6 @@ export default function ExportModal({
                   value={filename}
                   onChange={(e) => setFileName(filenamify(e.target.value || ''))}
                   placeholder={localize('com_nav_export_filename_placeholder')}
-                  className={cn(
-                    defaultTextProps,
-                    'flex h-10 max-h-10 w-full resize-none px-3 py-2',
-                  )}
                 />
               </div>
               <div className="col-span-1 flex w-full flex-col items-start justify-start gap-2">
@@ -164,7 +170,7 @@ export default function ExportModal({
         }
         buttons={
           <>
-            <Button onClick={exportConversation} variant="success">
+            <Button onClick={exportConversation} variant="submit">
               {localize('com_endpoint_export')}
             </Button>
           </>

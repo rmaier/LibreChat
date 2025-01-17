@@ -1,20 +1,18 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
   EModelEndpoint,
   EToolResources,
   mergeFileConfig,
   AgentCapabilities,
-  retrievalMimeTypes,
   fileConfig as defaultFileConfig,
 } from 'librechat-data-provider';
 import type { ExtendedFile, AgentForm } from '~/common';
+import { useFileHandling, useLocalize, useLazyEffect } from '~/hooks';
 import FileRow from '~/components/Chat/Input/Files/FileRow';
 import FileSearchCheckbox from './FileSearchCheckbox';
 import { useGetFileConfig } from '~/data-provider';
 import { AttachmentIcon } from '~/components/svg';
-import { useFileHandling } from '~/hooks/Files';
-import useLocalize from '~/hooks/useLocalize';
 import { useChatContext } from '~/Providers';
 
 export default function FileSearch({
@@ -40,18 +38,22 @@ export default function FileSearch({
     fileSetter: setFiles,
   });
 
-  useEffect(() => {
-    if (_files) {
-      setFiles(new Map(_files));
-    }
-  }, [_files]);
+  useLazyEffect(
+    () => {
+      if (_files) {
+        setFiles(new Map(_files));
+      }
+    },
+    [_files],
+    750,
+  );
 
   const fileSearchChecked = watch(AgentCapabilities.file_search);
 
   const endpointFileConfig = fileConfig.endpoints[EModelEndpoint.agents];
-  const disabled = endpointFileConfig.disabled ?? false;
+  const isUploadDisabled = endpointFileConfig.disabled ?? false;
 
-  if (disabled === true) {
+  if (isUploadDisabled) {
     return null;
   }
 
@@ -64,7 +66,7 @@ export default function FileSearch({
   };
 
   return (
-    <div className="mb-6">
+    <div className="w-full">
       <div className="mb-1.5 flex items-center gap-2">
         <span>
           <label className="text-token-text-primary block font-medium">
@@ -73,12 +75,21 @@ export default function FileSearch({
         </span>
       </div>
       <FileSearchCheckbox />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
+        {/* File Search (RAG API) Files */}
+        <FileRow
+          files={files}
+          setFiles={setFiles}
+          setFilesLoading={setFilesLoading}
+          agent_id={agent_id}
+          tool_resource={EToolResources.file_search}
+          Wrapper={({ children }) => <div className="flex flex-wrap gap-2">{children}</div>}
+        />
         <div>
           <button
             type="button"
             disabled={!agent_id || fileSearchChecked === false}
-            className="btn btn-neutral border-token-border-light relative h-8 rounded-lg font-medium"
+            className="btn btn-neutral border-token-border-light relative h-9 w-full rounded-lg font-medium"
             onClick={handleButtonClick}
           >
             <div className="flex w-full items-center justify-center gap-1">
@@ -92,28 +103,16 @@ export default function FileSearch({
                 disabled={!agent_id || fileSearchChecked === false}
                 onChange={handleFileChange}
               />
-              {localize('com_ui_upload_files')}
+              {localize('com_ui_upload_file_search')}
             </div>
           </button>
         </div>
         {/* Disabled Message */}
         {agent_id ? null : (
-          <div className="text-sm text-text-secondary">
+          <div className="text-xs text-text-secondary">
             {localize('com_agents_file_search_disabled')}
           </div>
         )}
-        {/* Knowledge Files */}
-        <FileRow
-          files={files}
-          setFiles={setFiles}
-          setFilesLoading={setFilesLoading}
-          agent_id={agent_id}
-          tool_resource={EToolResources.file_search}
-          fileFilter={(file: ExtendedFile) =>
-            retrievalMimeTypes.some((regex) => regex.test(file.type ?? ''))
-          }
-          Wrapper={({ children }) => <div className="flex flex-wrap gap-2">{children}</div>}
-        />
       </div>
     </div>
   );
