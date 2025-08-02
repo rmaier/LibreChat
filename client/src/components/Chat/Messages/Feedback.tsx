@@ -2,6 +2,14 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import * as Ariakit from '@ariakit/react';
 import { TFeedback, TFeedbackTag, getTagsForRating } from 'librechat-data-provider';
 import {
+  Button,
+  OGDialog,
+  OGDialogContent,
+  OGDialogTitle,
+  ThumbUpIcon,
+  ThumbDownIcon,
+} from '@librechat/client';
+import {
   AlertCircle,
   PenTool,
   ImageOff,
@@ -11,14 +19,6 @@ import {
   Lightbulb,
   Search,
 } from 'lucide-react';
-import {
-  Button,
-  OGDialog,
-  OGDialogContent,
-  OGDialogTitle,
-  ThumbUpIcon,
-  ThumbDownIcon,
-} from '~/components';
 import { useLocalize } from '~/hooks';
 import { cn } from '~/utils';
 
@@ -216,18 +216,12 @@ function FeedbackButtons({
 
 function buttonClasses(isActive: boolean, isLast: boolean) {
   return cn(
-    'hover-button rounded-lg p-1.5',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white',
-    'hover:bg-gray-100 hover:text-gray-500',
-    'data-[state=open]:active data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500',
-    isActive ? 'text-gray-500 dark:text-gray-200 font-bold' : 'dark:text-gray-400/70',
-    'dark:hover:bg-gray-700 dark:hover:text-gray-200',
-    'data-[state=open]:dark:bg-gray-700 data-[state=open]:dark:text-gray-200',
-    'disabled:dark:hover:text-gray-400',
-    isLast
-      ? ''
-      : 'data-[state=open]:opacity-100 md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100',
-    'md:group-focus-within:visible md:group-hover:visible md:group-[.final-completion]:visible',
+    'hover-button rounded-lg p-1.5 text-text-secondary-alt transition-colors duration-200',
+    'hover:text-text-primary hover:bg-surface-hover',
+    'md:group-hover:visible md:group-focus-within:visible md:group-[.final-completion]:visible',
+    !isLast && 'md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100',
+    'focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white focus-visible:outline-none',
+    isActive && 'active text-text-primary bg-surface-hover',
   );
 }
 

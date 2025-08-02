@@ -33,7 +33,9 @@ jest.mock('~/models', () => ({
 const { getConvo, saveConvo } = require('~/models');
 
 jest.mock('@librechat/agents', () => {
+  const { Providers } = jest.requireActual('@librechat/agents');
   return {
+    Providers,
     ChatOpenAI: jest.fn().mockImplementation(() => {
       return {};
     }),
@@ -418,6 +420,46 @@ describe('BaseClient', () => {
       parentMessageId = response.messageId;
       conversationId = response.conversationId;
       expect(response).toEqual(expectedResult);
+    });
+
+    test('should replace responseMessageId with new UUID when isRegenerate is true and messageId ends with underscore', async () => {
+      const mockCrypto = require('crypto');
+      const newUUID = 'new-uuid-1234';
+      jest.spyOn(mockCrypto, 'randomUUID').mockReturnValue(newUUID);
+
+      const opts = {
+        isRegenerate: true,
+        responseMessageId: 'existing-message-id_',
+      };
+
+      await TestClient.setMessageOptions(opts);
+
+      expect(TestClient.responseMessageId).toBe(newUUID);
+      expect(TestClient.responseMessageId).not.toBe('existing-message-id_');
+
+      mockCrypto.randomUUID.mockRestore();
+    });
+
+    test('should not replace responseMessageId when isRegenerate is false', async () => {
+      const opts = {
+        isRegenerate: false,
+        responseMessageId: 'existing-message-id_',
+      };
+
+      await TestClient.setMessageOptions(opts);
+
+      expect(TestClient.responseMessageId).toBe('existing-message-id_');
+    });
+
+    test('should not replace responseMessageId when it does not end with underscore', async () => {
+      const opts = {
+        isRegenerate: true,
+        responseMessageId: 'existing-message-id',
+      };
+
+      await TestClient.setMessageOptions(opts);
+
+      expect(TestClient.responseMessageId).toBe('existing-message-id');
     });
 
     test('sendMessage should work with provided conversationId and parentMessageId', async () => {

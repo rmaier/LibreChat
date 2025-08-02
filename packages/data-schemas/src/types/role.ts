@@ -12,6 +12,12 @@ export interface IRole extends Document {
       [Permissions.USE]?: boolean;
       [Permissions.CREATE]?: boolean;
     };
+    [PermissionTypes.MEMORIES]?: {
+      [Permissions.USE]?: boolean;
+      [Permissions.CREATE]?: boolean;
+      [Permissions.UPDATE]?: boolean;
+      [Permissions.READ]?: boolean;
+    };
     [PermissionTypes.AGENTS]?: {
       [Permissions.SHARED_GLOBAL]?: boolean;
       [Permissions.USE]?: boolean;
@@ -27,6 +33,9 @@ export interface IRole extends Document {
       [Permissions.USE]?: boolean;
     };
     [PermissionTypes.WEB_SEARCH]?: {
+      [Permissions.USE]?: boolean;
+    };
+    [PermissionTypes.FILE_SEARCH]?: {
       [Permissions.USE]?: boolean;
     };
   };

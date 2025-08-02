@@ -5,9 +5,11 @@ import {
   permissionsSchema,
   agentPermissionsSchema,
   promptPermissionsSchema,
+  memoryPermissionsSchema,
   runCodePermissionsSchema,
-  webSearchPermissionsSchema,
   bookmarkPermissionsSchema,
+  webSearchPermissionsSchema,
+  fileSearchPermissionsSchema,
   multiConvoPermissionsSchema,
   temporaryChatPermissionsSchema,
 } from './permissions';
@@ -48,6 +50,13 @@ const defaultRolesSchema = z.object({
       [PermissionTypes.BOOKMARKS]: bookmarkPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
+      [PermissionTypes.MEMORIES]: memoryPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+        [Permissions.CREATE]: z.boolean().default(true),
+        [Permissions.UPDATE]: z.boolean().default(true),
+        [Permissions.READ]: z.boolean().default(true),
+        [Permissions.OPT_OUT]: z.boolean().default(true),
+      }),
       [PermissionTypes.AGENTS]: agentPermissionsSchema.extend({
         [Permissions.SHARED_GLOBAL]: z.boolean().default(true),
         [Permissions.USE]: z.boolean().default(true),
@@ -64,6 +73,9 @@ const defaultRolesSchema = z.object({
         [Permissions.USE]: z.boolean().default(true),
       }),
       [PermissionTypes.WEB_SEARCH]: webSearchPermissionsSchema.extend({
+        [Permissions.USE]: z.boolean().default(true),
+      }),
+      [PermissionTypes.FILE_SEARCH]: fileSearchPermissionsSchema.extend({
         [Permissions.USE]: z.boolean().default(true),
       }),
     }),
@@ -86,6 +98,13 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.BOOKMARKS]: {
         [Permissions.USE]: true,
       },
+      [PermissionTypes.MEMORIES]: {
+        [Permissions.USE]: true,
+        [Permissions.CREATE]: true,
+        [Permissions.UPDATE]: true,
+        [Permissions.READ]: true,
+        [Permissions.OPT_OUT]: true,
+      },
       [PermissionTypes.AGENTS]: {
         [Permissions.SHARED_GLOBAL]: true,
         [Permissions.USE]: true,
@@ -103,6 +122,9 @@ export const roleDefaults = defaultRolesSchema.parse({
       [PermissionTypes.WEB_SEARCH]: {
         [Permissions.USE]: true,
       },
+      [PermissionTypes.FILE_SEARCH]: {
+        [Permissions.USE]: true,
+      },
     },
   },
   [SystemRoles.USER]: {
@@ -110,11 +132,13 @@ export const roleDefaults = defaultRolesSchema.parse({
     permissions: {
       [PermissionTypes.PROMPTS]: {},
       [PermissionTypes.BOOKMARKS]: {},
+      [PermissionTypes.MEMORIES]: {},
       [PermissionTypes.AGENTS]: {},
       [PermissionTypes.MULTI_CONVO]: {},
       [PermissionTypes.TEMPORARY_CHAT]: {},
       [PermissionTypes.RUN_CODE]: {},
       [PermissionTypes.WEB_SEARCH]: {},
+      [PermissionTypes.FILE_SEARCH]: {},
     },
   },
 });
